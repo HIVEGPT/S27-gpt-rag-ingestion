@@ -1,4 +1,4 @@
-## Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
+# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure Functions: https://aka.ms/python-webapps-actions
 
@@ -28,13 +28,11 @@ jobs:
 
       - name: Create and start virtual environment
         run: |
-          python3 -m venv venv
+          python -m venv venv
           source venv/bin/activate
 
       - name: Install dependencies
-        run: |
-          pip3 install pip setuptools wheel cython --upgrade
-          pip3 install -r requirements.txt
+        run: pip install -r requirements.txt
 
       # Optional: Add step to run tests here
 
@@ -52,10 +50,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-function.outputs.webapp-url }}
     
+    permissions:
+      id-token: write #This is required for requesting the JWT
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -65,6 +63,13 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip     
         
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C0570F64B3AE40C599906C92539ED095 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_332D92E021804C9F83C3691FA888ED44 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D0ED9709C6624223BD3ACD1BC4A4AB31 }}
+
       - name: 'Deploy to Azure Functions'
         uses: Azure/functions-action@v1
         id: deploy-to-function
@@ -72,4 +77,4 @@ jobs:
           app-name: 'S27-gpt-rag-ingestion'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_33E246AA9A1D4BEB97A5BB96F5030670 }}
+          
