@@ -1,3 +1,4 @@
+jsonschema
 # Azure Functions dependencies
 azure-functions
 azurefunctions-extensions-bindings-blob
